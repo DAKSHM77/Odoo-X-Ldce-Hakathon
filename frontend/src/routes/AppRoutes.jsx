@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginSignup from '../pages/LoginSignup';
+import Login from '../features/auth/pages/Login';
+import Register from '../features/auth/pages/Register';
 import Dashboard from '../pages/Dashboard';
 import ProtectedRoute from '../components/common/ProtectedRoute';
 import { useAuth } from '../hooks/useAuth';
@@ -13,8 +14,8 @@ export const AppRoutes = () => {
         path="/"
         element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />}
       />
-      <Route path="/login" element={<LoginSignup />} />
-      <Route path="/register" element={<LoginSignup />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route
         path="/dashboard"
         element={

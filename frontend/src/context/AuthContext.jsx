@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { loginApi, registerApi, getProfileApi } from '../api/authApi';
+import { loginApi, registerApi, logoutApi, getProfileApi } from '../api/authApi';
 
 export const AuthContext = createContext();
 
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
           setUser(userData);
         } catch (err) {
           console.error('Failed to restore user session:', err);
-          logout();
+          _clearAuth();
         }
       }
       setLoading(false);
@@ -26,6 +26,12 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, [token]);
 
+  const _clearAuth = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  };
+
   const login = async (email, password) => {
     setError(null);
     setLoading(true);
@@ -33,7 +39,19 @@ export const AuthProvider = ({ children }) => {
       const data = await loginApi(email, password);
       localStorage.setItem('token', data.token);
       setToken(data.token);
-      setUser({ _id: data._id, name: data.name, email: data.email, role: data.role });
+      setUser({
+        _id: data._id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: data.name,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        city: data.city,
+        country: data.country,
+        additionalInformation: data.additionalInformation,
+        profilePhoto: data.profilePhoto,
+        role: data.role,
+      });
       setLoading(false);
       return data;
     } catch (err) {
@@ -44,14 +62,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password) => {
+  // register accepts the full GlobeTrotter registration payload
+  const register = async (registrationData) => {
     setError(null);
     setLoading(true);
     try {
-      const data = await registerApi(name, email, password);
+      const data = await registerApi(registrationData);
       localStorage.setItem('token', data.token);
       setToken(data.token);
-      setUser({ _id: data._id, name: data.name, email: data.email, role: data.role });
+      setUser({
+        _id: data._id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: data.name,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        city: data.city,
+        country: data.country,
+        additionalInformation: data.additionalInformation,
+        profilePhoto: data.profilePhoto,
+        role: data.role,
+      });
       setLoading(false);
       return data;
     } catch (err) {
@@ -62,10 +93,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      if (token) await logoutApi();
+    } catch (_) {
+      // Silently ignore logout API errors — always clear local state
+    }
+    _clearAuth();
     setError(null);
   };
 

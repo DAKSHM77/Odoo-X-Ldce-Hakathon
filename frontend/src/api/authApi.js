@@ -5,8 +5,14 @@ export const loginApi = async (email, password) => {
   return response.data;
 };
 
-export const registerApi = async (name, email, password) => {
-  const response = await axiosInstance.post('/auth/register', { name, email, password });
+// Accepts full GlobeTrotter registration payload object
+export const registerApi = async (registrationData) => {
+  const response = await axiosInstance.post('/auth/register', registrationData);
+  return response.data;
+};
+
+export const logoutApi = async () => {
+  const response = await axiosInstance.post('/auth/logout');
   return response.data;
 };
 

@@ -16,7 +16,7 @@ export const Navbar = () => {
       <div className="navbar-container">
         <Link to="/" className="navbar-brand">
           <Compass className="brand-icon" />
-          <span className="brand-text">Odoo Travel App</span>
+          <span className="brand-text">GlobeTrotter</span>
         </Link>
 
         <div className="navbar-links">
