@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Compass, Map, Plus, Calendar, DollarSign } from 'lucide-react';
 
@@ -19,7 +20,7 @@ export const Dashboard = () => {
           Hello, {user?.name || 'Explorer'}! 👋
         </h1>
         <p style={{ color: '#94a3b8' }}>
-          Welcome to your Odoo Travel Hub. Start planning your next dream itinerary.
+          Welcome to your GlobeTrotter Travel Hub. Start planning your next dream itinerary.
         </p>
       </div>
 
@@ -30,9 +31,9 @@ export const Dashboard = () => {
           <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '1rem' }}>
             Build custom travel routes, set stopovers, and invite friends.
           </p>
-          <button className="btn btn-primary btn-sm" style={{ gap: '0.375rem' }}>
+          <Link to="/itinerary" className="btn btn-primary btn-sm" style={{ gap: '0.375rem' }}>
             <Plus size={16} /> Plan Trip
-          </button>
+          </Link>
         </div>
 
         <div style={cardStyle}>
@@ -41,7 +42,9 @@ export const Dashboard = () => {
           <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '1rem' }}>
             View and edit all your saved trip itineraries and schedules.
           </p>
-          <button className="btn btn-outline btn-sm">Explore</button>
+          <Link to="/itinerary" className="btn btn-outline btn-sm">
+            Explore Itineraries
+          </Link>
         </div>
 
         <div style={cardStyle}>
@@ -50,7 +53,9 @@ export const Dashboard = () => {
           <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '1rem' }}>
             Track total expenses, stay within budget, and estimate costs.
           </p>
-          <button className="btn btn-outline btn-sm">View Budget</button>
+          <Link to="/itinerary" className="btn btn-outline btn-sm">
+            View Budget
+          </Link>
         </div>
       </div>
     </div>
