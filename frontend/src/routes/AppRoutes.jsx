@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../features/auth/pages/Login';
 import Register from '../features/auth/pages/Register';
 import Dashboard from '../pages/Dashboard';
+import CreateTrip from '../pages/CreateTrip';
 import ItineraryBuilderPage from '../pages/ItineraryBuilder';
 import ItineraryViewPage from '../pages/ItineraryView';
 import ProtectedRoute from '../components/common/ProtectedRoute';
@@ -23,6 +24,14 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/create-trip"
+        element={
+          <ProtectedRoute>
+            <CreateTrip />
           </ProtectedRoute>
         }
       />

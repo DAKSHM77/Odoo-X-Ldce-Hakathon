@@ -31,7 +31,7 @@ export const Dashboard = () => {
           <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '1rem' }}>
             Build custom travel routes, set stopovers, and invite friends.
           </p>
-          <Link to="/itinerary" className="btn btn-primary btn-sm" style={{ gap: '0.375rem' }}>
+          <Link to="/create-trip" className="btn btn-primary btn-sm" style={{ gap: '0.375rem' }}>
             <Plus size={16} /> Plan Trip
           </Link>
         </div>
