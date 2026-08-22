@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Last name is required'],
       trim: true,
     },
-    // Computed virtual — kept for backward compat (other devs may use user.name)
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -42,8 +41,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
-    // profilePhoto: store as base64 data URI for now (no external storage needed)
-    // Can be swapped for a Cloudinary URL or S3 URL later without schema change
     profilePhoto: {
       type: String,
       default: '',
@@ -62,7 +59,6 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    // Virtual 'name' field so other developers' code referencing user.name still works
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
@@ -73,14 +69,13 @@ userSchema.virtual('name').get(function () {
   return `${this.firstName} ${this.lastName}`.trim();
 });
 
-// Encrypt password using bcrypt before saving
-userSchema.pre('save', async function (next) {
+// Encrypt password using bcrypt before saving (Mongoose 9 compatible async pre hook)
+userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
-    return next();
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Match user entered password to hashed password in database
