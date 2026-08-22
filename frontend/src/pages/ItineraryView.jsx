@@ -71,9 +71,7 @@ export default function ItineraryViewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-cyan-50/20">
-      {/* ── Navbar ── */}
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-cyan-50/20 text-slate-800">
 
       <main id="itinerary-view-main" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
 
