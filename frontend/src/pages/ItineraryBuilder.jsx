@@ -1,15 +1,20 @@
 import { Link } from 'react-router-dom';
 import ItineraryBuilder from '../components/itinerary/ItineraryBuilder';
+import ItineraryViewPage from './ItineraryView';
 import { useItinerary } from '../context/ItineraryContext';
 import { BookOpen, ChevronRight, Eye } from 'lucide-react';
 
 /**
- * ItineraryBuilderPage  (Screen 5 Page Wrapper)
- * Renders page breadcrumbs, header with "View Itinerary" action,
- * and the main ItineraryBuilder content area.
+ * ItineraryBuilderPage  (Screen 5 & Screen 9 Wrapper Page)
+ * Dynamically switches between Screen 5 (Itinerary Builder) and Screen 9 (Itinerary View)
+ * based on activeScreen state in ItineraryContext.
  */
 export default function ItineraryBuilderPage() {
-  const { setActiveScreen } = useItinerary();
+  const { activeScreen, setActiveScreen } = useItinerary();
+
+  if (activeScreen === 'view') {
+    return <ItineraryViewPage />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-cyan-50/20 text-slate-800">
@@ -70,12 +75,12 @@ export default function ItineraryBuilderPage() {
               "
             >
               <Eye size={16} />
-              View Itinerary
+              View Full Itinerary
             </button>
           </div>
         </div>
 
-        {/* ── Builder ── */}
+        {/* ── Builder Components ── */}
         <ItineraryBuilder />
 
         {/* Footer spacing */}
