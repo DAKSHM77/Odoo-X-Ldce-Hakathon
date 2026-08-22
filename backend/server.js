@@ -16,7 +16,7 @@ app.use(express.json());
 
 // Health Check Route
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Backend is running smoothly' });
+  res.json({ status: 'ok', message: 'GlobeTrotter API server is running' });
 });
 
 // Routes

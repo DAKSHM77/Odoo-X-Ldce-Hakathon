@@ -1,12 +1,16 @@
 const mongoose = require('mongoose');
 const { MONGO_URI } = require('./env');
 
+/**
+ * Connects to MongoDB Atlas using Mongoose and process.env.MONGO_URI.
+ * Logs status messages; never logs connection credentials or URIs.
+ */
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    console.log(`MongoDB connected successfully: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`Error connecting to MongoDB Atlas: ${error.message}`);
+    console.error('MongoDB connection failed:', error.message);
   }
 };
 
