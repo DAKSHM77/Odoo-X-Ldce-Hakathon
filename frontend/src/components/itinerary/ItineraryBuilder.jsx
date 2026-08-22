@@ -1,139 +1,147 @@
-import { useState } from 'react'
-import { PlusCircle, MapPin, Globe } from 'lucide-react'
+import { PlusCircle, MapPin, Globe, Eye, ArrowRight } from 'lucide-react'
+import { useItinerary } from '../../context/ItineraryContext'
 import ItinerarySection from './ItinerarySection'
 
-// ── Static seed data ──────────────────────────────────────────────────────────
-const INITIAL_SECTIONS = [
-  {
-    id: 1,
-    title: 'Arrival & City Exploration',
-    description: 'Check in to the hotel, freshen up, and take a leisurely walk through the old town. Visit the central market and grab a local dinner.',
-    startDate: '2024-09-10',
-    endDate: '2024-09-12',
-    budget: '350',
-  },
-  {
-    id: 2,
-    title: 'Adventure & Outdoor Activities',
-    description: 'Day trip to the national park. Hiking, kayaking, and a guided nature tour in the afternoon. Bonfire dinner under the stars.',
-    startDate: '2024-09-13',
-    endDate: '2024-09-15',
-    budget: '500',
-  },
-  {
-    id: 3,
-    title: 'Culture & Departure',
-    description: 'Museum visits, souvenir shopping, and a farewell dinner at a rooftop restaurant. Transfer to the airport in the evening.',
-    startDate: '2024-09-16',
-    endDate: '2024-09-17',
-    budget: '200',
-  },
-]
-
-let nextId = INITIAL_SECTIONS.length + 1
-
-// ── ItineraryBuilder component ────────────────────────────────────────────────
 /**
- * ItineraryBuilder
- * Renders the full list of ItinerarySection cards plus an "Add another Section"
- * button and a trip summary strip.
- * No backend / API calls – purely static/local state.
+ * ItineraryBuilder (Screen 5 component)
+ * Renders editable section cards with activity management, total budget calculation,
+ * and a "View Itinerary" navigation action to Screen 9.
  */
 export default function ItineraryBuilder() {
-  const [sections, setSections] = useState(INITIAL_SECTIONS)
+  const {
+    sections,
+    updateSection,
+    addSection,
+    removeSection,
+    addActivity,
+    updateActivity,
+    removeActivity,
+    setActiveScreen,
+  } = useItinerary()
 
-  // Update a single field on a section
-  const handleChange = (id, field, value) => {
-    setSections((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, [field]: value } : s))
-    )
-  }
-
-  // Remove a section
-  const handleRemove = (id) => {
-    setSections((prev) => prev.filter((s) => s.id !== id))
-  }
-
-  // Append a new blank section
-  const handleAdd = () => {
-    const newSection = {
-      id: nextId++,
-      title: `Section ${sections.length + 1}`,
-      description: '',
-      startDate: '',
-      endDate: '',
-      budget: '',
-    }
-    setSections((prev) => [...prev, newSection])
-  }
-
-  // Compute total budget
+  // Compute total budget across all sections
   const totalBudget = sections.reduce(
     (sum, s) => sum + (parseFloat(s.budget) || 0),
     0
   )
 
+  // Compute total activity expenses across all sections
+  const totalExpenses = sections.reduce((sum, s) => {
+    const actSum = (s.activities || []).reduce(
+      (aSum, act) => aSum + (parseFloat(act.expense) || 0),
+      0
+    )
+    return sum + actSum
+  }, 0)
+
   return (
     <div className="space-y-6">
-      {/* Trip Summary Strip */}
-      <div className="flex flex-wrap gap-4 items-center bg-gradient-to-r from-indigo-600 to-cyan-500 rounded-2xl p-5 text-white shadow-md">
-        <div className="flex items-center gap-2">
-          <Globe size={20} className="opacity-80" />
+      {/* ── Summary & View Itinerary CTA Strip ── */}
+      <div className="
+        flex flex-wrap gap-4 items-center justify-between
+        bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500
+        rounded-2xl p-5 text-white shadow-md
+      ">
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Globe size={20} className="opacity-80" />
+            <div>
+              <p className="text-xs opacity-70 uppercase tracking-wider font-medium">Trip</p>
+              <p className="font-bold text-base leading-tight">
+                {sections[0]?.title ? sections[0].title : 'My Trip'}
+              </p>
+            </div>
+          </div>
+          <div className="h-8 w-px bg-white/30 hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <MapPin size={20} className="opacity-80" />
+            <div>
+              <p className="text-xs opacity-70 uppercase tracking-wider font-medium">Sections</p>
+              <p className="font-bold text-base leading-tight">{sections.length}</p>
+            </div>
+          </div>
+          <div className="h-8 w-px bg-white/30 hidden sm:block" />
           <div>
-            <p className="text-xs opacity-70 uppercase tracking-wider font-medium">Trip</p>
-            <p className="font-bold text-base leading-tight">Europe Summer 2024</p>
+            <p className="text-xs opacity-70 uppercase tracking-wider font-medium">Total Budget</p>
+            <p className="font-bold text-lg leading-tight">
+              ₹{totalBudget.toLocaleString('en-IN')}
+            </p>
           </div>
         </div>
-        <div className="h-8 w-px bg-white/30 hidden sm:block" />
-        <div className="flex items-center gap-2">
-          <MapPin size={20} className="opacity-80" />
-          <div>
-            <p className="text-xs opacity-70 uppercase tracking-wider font-medium">Sections</p>
-            <p className="font-bold text-base leading-tight">{sections.length}</p>
-          </div>
-        </div>
-        <div className="h-8 w-px bg-white/30 hidden sm:block" />
-        <div className="ml-auto text-right">
-          <p className="text-xs opacity-70 uppercase tracking-wider font-medium">Total Budget</p>
-          <p className="font-bold text-xl leading-tight">
-            ${totalBudget.toLocaleString('en-US', { minimumFractionDigits: 0 })}
-          </p>
-        </div>
+
+        {/* View Itinerary Button */}
+        <button
+          id="strip-view-itinerary-btn"
+          type="button"
+          onClick={() => setActiveScreen('view')}
+          className="
+            inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
+            bg-white text-indigo-700 font-bold text-sm shadow
+            hover:bg-indigo-50 hover:scale-105 transition-all duration-200
+          "
+        >
+          <Eye size={18} />
+          View Itinerary
+          <ArrowRight size={16} />
+        </button>
       </div>
 
-      {/* Section Cards */}
+      {/* ── Section Cards ── */}
       <div className="space-y-4">
         {sections.map((section, idx) => (
           <ItinerarySection
             key={section.id}
             section={section}
             index={idx}
-            onChange={handleChange}
-            onRemove={handleRemove}
+            onChange={updateSection}
+            onRemove={removeSection}
             removable={sections.length > 1}
+            onAddActivity={addActivity}
+            onUpdateActivity={updateActivity}
+            onRemoveActivity={removeActivity}
           />
         ))}
       </div>
 
-      {/* Add Section Button */}
-      <button
-        id="add-itinerary-section-btn"
-        type="button"
-        onClick={handleAdd}
-        className="
-          w-full flex items-center justify-center gap-2
-          rounded-2xl border-2 border-dashed border-indigo-300
-          bg-indigo-50 hover:bg-indigo-100
-          text-indigo-600 font-semibold text-sm
-          py-4 px-6
-          transition-all duration-200 hover:border-indigo-400
-          focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1
-        "
-        aria-label="Add another itinerary section"
-      >
-        <PlusCircle size={20} />
-        + Add another Section
-      </button>
+      {/* ── Actions: Add Section & View Itinerary ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          id="add-itinerary-section-btn"
+          type="button"
+          onClick={addSection}
+          className="
+            w-full flex items-center justify-center gap-2
+            rounded-2xl border-2 border-dashed border-indigo-300
+            bg-indigo-50 hover:bg-indigo-100
+            text-indigo-600 font-semibold text-sm
+            py-4 px-6
+            transition-all duration-200 hover:border-indigo-400
+            focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1
+          "
+          aria-label="Add another itinerary section"
+        >
+          <PlusCircle size={20} />
+          + Add another Section
+        </button>
+
+        <button
+          id="bottom-view-itinerary-btn"
+          type="button"
+          onClick={() => setActiveScreen('view')}
+          className="
+            w-full flex items-center justify-center gap-2
+            rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-500
+            hover:from-indigo-700 hover:to-cyan-600
+            text-white font-bold text-sm
+            py-4 px-6 shadow-md hover:shadow-lg
+            transition-all duration-200
+          "
+          aria-label="View Itinerary"
+        >
+          <Eye size={20} />
+          View Itinerary (Screen 9) →
+        </button>
+      </div>
     </div>
   )
 }

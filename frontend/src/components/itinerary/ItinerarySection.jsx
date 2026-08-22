@@ -1,16 +1,20 @@
-import { MapPin, Calendar, DollarSign, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
+import { MapPin, Calendar, DollarSign, ChevronDown, ChevronUp, Trash2, Plus, Clock, Tag } from 'lucide-react'
 import { useState } from 'react'
 
 /**
  * ItinerarySection
  * A reusable card that represents one section of a trip itinerary.
+ * Includes inline editing for section header details and an Activity list editor.
  *
  * Props:
- *   section      – { id, title, description, startDate, endDate, budget }
- *   index        – zero-based position in the list (used for colour accent)
- *   onChange     – (id, field, value) => void
- *   onRemove     – (id) => void
- *   removable    – bool  (hide the remove button when only 1 section remains)
+ *   section           – { id, title, description, startDate, endDate, budget, activities }
+ *   index             – zero-based position in the list (used for colour accent)
+ *   onChange          – (id, field, value) => void
+ *   onRemove          – (id) => void
+ *   removable         – bool  (hide remove button when only 1 section remains)
+ *   onAddActivity     – (sectionId) => void
+ *   onUpdateActivity  – (sectionId, activityId, field, value) => void
+ *   onRemoveActivity  – (sectionId, activityId) => void
  */
 
 const ACCENT_COLOURS = [
@@ -22,11 +26,22 @@ const ACCENT_COLOURS = [
   { bg: 'bg-rose-50',     border: 'border-rose-300',   badge: 'bg-rose-500',    icon: 'text-rose-500'    },
 ]
 
-export default function ItinerarySection({ section, index, onChange, onRemove, removable }) {
+export default function ItinerarySection({
+  section,
+  index,
+  onChange,
+  onRemove,
+  removable,
+  onAddActivity,
+  onUpdateActivity,
+  onRemoveActivity,
+}) {
   const [collapsed, setCollapsed] = useState(false)
   const accent = ACCENT_COLOURS[index % ACCENT_COLOURS.length]
 
   const handleField = (field) => (e) => onChange(section.id, field, e.target.value)
+
+  const activities = section.activities || []
 
   return (
     <div
@@ -39,7 +54,7 @@ export default function ItinerarySection({ section, index, onChange, onRemove, r
     >
       {/* ── Section Header ── */}
       <div className="flex items-center justify-between px-5 py-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Numbered badge */}
           <span
             className={`
@@ -54,7 +69,7 @@ export default function ItinerarySection({ section, index, onChange, onRemove, r
           <input
             id={`section-title-${section.id}`}
             type="text"
-            value={section.title}
+            value={section.title || ''}
             onChange={handleField('title')}
             className="
               bg-transparent text-gray-800 font-semibold text-lg
@@ -62,7 +77,7 @@ export default function ItinerarySection({ section, index, onChange, onRemove, r
               focus:outline-none transition-colors duration-200
               w-full max-w-xs
             "
-            placeholder="Section title..."
+            placeholder="Section/Place title (e.g. Goa)..."
             aria-label={`Section ${index + 1} title`}
           />
         </div>
@@ -116,13 +131,13 @@ export default function ItinerarySection({ section, index, onChange, onRemove, r
             </label>
             <textarea
               id={`section-desc-${section.id}`}
-              rows={3}
-              value={section.description}
+              rows={2}
+              value={section.description || ''}
               onChange={handleField('description')}
               placeholder="Describe what you'll do in this section..."
               className="
                 w-full rounded-xl border border-gray-200 bg-white/70
-                px-4 py-3 text-sm text-gray-700 placeholder-gray-400
+                px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400
                 focus:outline-none focus:ring-2 focus:ring-indigo-300
                 resize-none transition-all duration-200
               "
@@ -143,11 +158,11 @@ export default function ItinerarySection({ section, index, onChange, onRemove, r
                 <input
                   id={`section-start-${section.id}`}
                   type="date"
-                  value={section.startDate}
+                  value={section.startDate || ''}
                   onChange={handleField('startDate')}
                   className="
                     flex-1 rounded-xl border border-gray-200 bg-white/70
-                    px-3 py-2.5 text-sm text-gray-700
+                    px-3 py-2 text-sm text-gray-700
                     focus:outline-none focus:ring-2 focus:ring-indigo-300
                     transition-all duration-200
                   "
@@ -157,11 +172,11 @@ export default function ItinerarySection({ section, index, onChange, onRemove, r
                 <input
                   id={`section-end-${section.id}`}
                   type="date"
-                  value={section.endDate}
+                  value={section.endDate || ''}
                   onChange={handleField('endDate')}
                   className="
                     flex-1 rounded-xl border border-gray-200 bg-white/70
-                    px-3 py-2.5 text-sm text-gray-700
+                    px-3 py-2 text-sm text-gray-700
                     focus:outline-none focus:ring-2 focus:ring-indigo-300
                     transition-all duration-200
                   "
@@ -178,22 +193,22 @@ export default function ItinerarySection({ section, index, onChange, onRemove, r
               >
                 <span className="flex items-center gap-1.5">
                   <DollarSign size={13} className={accent.icon} />
-                  Budget (USD)
+                  Budget (₹ / $)
                 </span>
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 text-sm">$</span>
+                <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 text-sm">₹</span>
                 <input
                   id={`section-budget-${section.id}`}
                   type="number"
                   min="0"
                   step="1"
-                  value={section.budget}
+                  value={section.budget || ''}
                   onChange={handleField('budget')}
-                  placeholder="0"
+                  placeholder="10000"
                   className="
                     w-full rounded-xl border border-gray-200 bg-white/70
-                    pl-7 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400
+                    pl-7 pr-4 py-2 text-sm text-gray-700 placeholder-gray-400
                     focus:outline-none focus:ring-2 focus:ring-indigo-300
                     transition-all duration-200
                   "
@@ -202,10 +217,132 @@ export default function ItinerarySection({ section, index, onChange, onRemove, r
             </div>
           </div>
 
-          {/* Location hint */}
-          <div className={`flex items-center gap-2 text-xs ${accent.icon} opacity-70`}>
-            <MapPin size={12} />
-            <span>Tip: Specify locations when editing activities inside this section.</span>
+          {/* ── Activities & Expenses Section ── */}
+          <div className="pt-3 border-t border-gray-200/60">
+            <div className="flex items-center justify-between mb-2.5">
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Activities & Expenses ({activities.length})
+              </label>
+              <button
+                type="button"
+                id={`add-activity-btn-${section.id}`}
+                onClick={() => onAddActivity && onAddActivity(section.id)}
+                className="
+                  inline-flex items-center gap-1 px-3 py-1.5 rounded-lg
+                  bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold
+                  shadow-sm transition-all duration-150
+                "
+              >
+                <Plus size={14} /> + Add Activity
+              </button>
+            </div>
+
+            {activities.length === 0 ? (
+              <div className="bg-white/60 rounded-xl p-4 text-center border border-dashed border-gray-300">
+                <p className="text-xs text-gray-400 italic">No activities added to this section yet.</p>
+                <button
+                  type="button"
+                  onClick={() => onAddActivity && onAddActivity(section.id)}
+                  className="mt-1.5 text-xs text-indigo-600 font-semibold hover:underline"
+                >
+                  Click here to add an activity (e.g. Baga Beach → ₹0)
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {activities.map((act, actIdx) => (
+                  <div
+                    key={act.id || actIdx}
+                    className="
+                      bg-white/90 rounded-xl p-3 border border-gray-200 shadow-sm
+                      space-y-2 hover:border-indigo-300 transition-colors
+                    "
+                  >
+                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                      {/* Activity Name */}
+                      <div className="flex-1 min-w-[160px]">
+                        <input
+                          id={`activity-name-${section.id}-${act.id}`}
+                          type="text"
+                          placeholder="Activity name (e.g. Baga Beach)"
+                          value={act.name || ''}
+                          onChange={(e) =>
+                            onUpdateActivity && onUpdateActivity(section.id, act.id, 'name', e.target.value)
+                          }
+                          className="
+                            w-full px-3 py-1.5 text-sm font-medium rounded-lg
+                            border border-gray-200 bg-white text-gray-800
+                            focus:outline-none focus:ring-2 focus:ring-indigo-300
+                          "
+                        />
+                      </div>
+
+                      {/* Time */}
+                      <div className="w-28 flex-shrink-0">
+                        <div className="relative">
+                          <input
+                            id={`activity-time-${section.id}-${act.id}`}
+                            type="text"
+                            placeholder="Time (10:00 AM)"
+                            value={act.time || ''}
+                            onChange={(e) =>
+                              onUpdateActivity && onUpdateActivity(section.id, act.id, 'time', e.target.value)
+                            }
+                            className="
+                              w-full px-2.5 py-1.5 text-xs rounded-lg
+                              border border-gray-200 bg-white text-gray-700
+                              focus:outline-none focus:ring-2 focus:ring-indigo-300
+                            "
+                          />
+                        </div>
+                      </div>
+
+                      {/* Expense */}
+                      <div className="w-32 flex-shrink-0">
+                        <div className="relative">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-semibold">₹</span>
+                          <input
+                            id={`activity-expense-${section.id}-${act.id}`}
+                            type="number"
+                            min="0"
+                            placeholder="Expense (0)"
+                            value={act.expense ?? ''}
+                            onChange={(e) =>
+                              onUpdateActivity &&
+                              onUpdateActivity(
+                                section.id,
+                                act.id,
+                                'expense',
+                                e.target.value === '' ? 0 : Number(e.target.value)
+                              )
+                            }
+                            className="
+                              w-full pl-6 pr-2 py-1.5 text-xs font-semibold rounded-lg
+                              border border-gray-200 bg-white text-gray-800
+                              focus:outline-none focus:ring-2 focus:ring-indigo-300
+                            "
+                          />
+                        </div>
+                      </div>
+
+                      {/* Delete Activity */}
+                      <button
+                        type="button"
+                        id={`delete-activity-btn-${section.id}-${act.id}`}
+                        onClick={() => onRemoveActivity && onRemoveActivity(section.id, act.id)}
+                        className="
+                          p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50
+                          rounded-lg transition-colors flex-shrink-0
+                        "
+                        aria-label="Remove activity"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -1,16 +1,16 @@
 import Navbar from '../components/common/Navbar'
 import ItineraryBuilder from '../components/itinerary/ItineraryBuilder'
-import { BookOpen, ChevronRight } from 'lucide-react'
+import { useItinerary } from '../context/ItineraryContext'
+import { BookOpen, ChevronRight, Eye } from 'lucide-react'
 
 /**
- * ItineraryBuilderPage  (Screen 5)
- * Full-page wrapper that includes the shared Navbar, a page header with
- * breadcrumbs, and the main ItineraryBuilder content area.
- *
- * No API calls or backend logic – purely presentational with local state
- * delegated to the ItineraryBuilder component.
+ * ItineraryBuilderPage  (Screen 5 Page Wrapper)
+ * Renders shared Navbar, page breadcrumbs, header with "View Itinerary" action,
+ * and the main ItineraryBuilder content area.
  */
 export default function ItineraryBuilderPage() {
+  const { setActiveScreen } = useItinerary()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-cyan-50/20">
       {/* ── Navigation ── */}
@@ -50,26 +50,29 @@ export default function ItineraryBuilderPage() {
               </h1>
             </div>
             <p className="text-gray-500 text-sm ml-[52px]">
-              Organise your trip into sections with dates and budgets.
+              Organise your trip into sections with dates, budgets, and activities.
             </p>
           </div>
 
-          {/* Save button (static – no backend yet) */}
-          <button
-            id="save-itinerary-btn"
-            type="button"
-            className="
-              inline-flex items-center gap-2
-              px-5 py-2.5 rounded-xl
-              bg-gradient-to-r from-indigo-500 to-cyan-500
-              text-white text-sm font-semibold shadow
-              hover:shadow-md hover:opacity-90
-              transition-all duration-200
-              self-start sm:self-auto
-            "
-          >
-            Save Itinerary
-          </button>
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              id="header-view-itinerary-btn"
+              type="button"
+              onClick={() => setActiveScreen('view')}
+              className="
+                inline-flex items-center gap-2
+                px-5 py-2.5 rounded-xl
+                bg-gradient-to-r from-indigo-500 to-cyan-500
+                text-white text-sm font-semibold shadow
+                hover:shadow-md hover:opacity-90
+                transition-all duration-200
+              "
+            >
+              <Eye size={16} />
+              View Itinerary
+            </button>
+          </div>
         </div>
 
         {/* ── Builder ── */}

@@ -1,10 +1,27 @@
-// ── Screen 5: Itinerary Builder ───────────────────────────────────────────────
-// Other team modules will be wired through AppRoutes.jsx once routing is set up.
-// Only import/render the itinerary page here for now.
+import { ItineraryProvider, useItinerary } from './context/ItineraryContext'
 import ItineraryBuilderPage from './pages/ItineraryBuilder'
+import ItineraryViewPage from './pages/ItineraryView'
 
-function App() {
-  return <ItineraryBuilderPage />
+/**
+ * AppContent
+ * Renders either Screen 5 (Itinerary Builder) or Screen 9 (Itinerary View)
+ * based on the activeScreen state in ItineraryContext.
+ */
+function AppContent() {
+  const { activeScreen } = useItinerary()
+
+  return activeScreen === 'view' ? <ItineraryViewPage /> : <ItineraryBuilderPage />
 }
 
-export default App
+/**
+ * App Root
+ * Wraps the application with ItineraryProvider for state management across
+ * Screen 5 and Screen 9 without modifying any teammates' files.
+ */
+export default function App() {
+  return (
+    <ItineraryProvider>
+      <AppContent />
+    </ItineraryProvider>
+  )
+}
