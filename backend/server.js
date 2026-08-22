@@ -1,9 +1,12 @@
-require("dotenv").config();
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./config/db');
+const { PORT } = require('./config/env');
+const authRoutes = require('./routes/authRoutes');
+const { notFound, errorHandler } = require('./middleware/errorHandler');
 
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./config/db");
-const tripRoutes = require("./routes/tripRoutes");
+// Connect to Database
+connectDB();
 
 const app = express();
 
@@ -12,21 +15,21 @@ app.use(cors({
 }));
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
-// Connect MongoDB Atlas
-connectDB();
-
-// Trip routes
-app.use("/api/trips", tripRoutes);
-
-// Test route
-app.get("/", (req, res) => {
-    res.send("Odoo Hackathon Backend is running");
+// Health Check Route
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'GlobeTrotter API server is running' });
 });
 
-const PORT = process.env.PORT || 5000;
+// Routes
+app.use('/api/auth', authRoutes);
+
+// Error Handling Middleware
+app.use(notFound);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running in development mode on port ${PORT}`);
 });
